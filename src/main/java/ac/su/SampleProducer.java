@@ -10,30 +10,31 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 
 public class SampleProducer {
-    private final static String BOOTSTRAP_SERVERS = "kbroker01:9092,kbroker02:9092,kbroker03:9092";
+    private final static String BOOTSTRAP_SERVERS = "kbroker001:9092,kbroker002:9092,kbroker003:9092";
     private final static String TOPIC_NAME = "first_topic";
     private final static Logger logger = LoggerFactory.getLogger(SampleProducer.class);
 
     public static void main(String[] args) {
-        // 1. .sh ë¡œ ìˆ˜í–‰í–ˆì„ ë•ŒëŠ” ê¸°ë³¸ ì„¤ì •ê°’ ë˜ëŠ” '--param' ìœ¼ë¡œ ë„£ì—ˆë˜ ì„¤ì •ê°’ë“¤ì„ programming ì ìœ¼ë¡œ í• ë‹¹
+        // 1. .sh ·Î ¼öÇàÇßÀ» ¶§´Â ±âº» ¼³Á¤°ª ¶Ç´Â '--param' À¸·Î ³Ö¾ú´ø ¼³Á¤°ªµéÀ» programming ÀûÀ¸·Î ÇÒ´ç
         Properties configs = new Properties();
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        // 2. producer ê°ì²´ ìƒì„±
+        // 2. producer °´Ã¼ »ı¼º
         KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
-        // producer ì•±ì€ í•­ìƒ ì‘ì—…ì„ ë§ˆì¹˜ê³  ì ‘ì† ì¢…ë£Œ ë³´ì¥ì„ ì½”ë“œì— ëª…ì‹œì ìœ¼ë¡œ êµ¬í˜„í•´ì•¼ í•¨
-        // 1. ëª…ì‹œì  close() í˜¸ì¶œ
-        // 2. try - with - resource êµ¬ë¬¸ì—ì„œ producer ìƒì„±
+        // producer ¾ÛÀº Ç×»ó ÀÛ¾÷À» ¸¶Ä¡°í Á¢¼Ó Á¾·á º¸ÀåÀ» ÄÚµå¿¡ ¸í½ÃÀûÀ¸·Î ±¸ÇöÇØ¾ß ÇÔ
+        // 1. ¸í½ÃÀû close() È£Ãâ
+        // 2. try - with - resource ±¸¹®¿¡¼­ producer »ı¼º
         for (int i = 0; i < 10; i++) {
-            // 3. ë©”ì‹œì§€ ìƒì„± ë° Record í˜•íƒœë¡œ Topic ì— ë°”ì¸ë”©
+            // 3. ¸Ş½ÃÁö »ı¼º ¹× Record ÇüÅÂ·Î Topic ¿¡ ¹ÙÀÎµù
             String msgValue = "this" + i + "msg is from java client ";
             ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, msgValue);
-            // 4. ë©”ì‹œì§€ ì „ì†¡ ëŒ€ê¸° => ë©”ì‹œì§€ë¥¼ ì „ì†¡ ë‹¨ìœ„ ë°°ì¹˜ë¡œ ë¯¸ë¦¬ êµ¬ì„±
-            producer.send(record); // ì• í”Œë¦¬ì¼€ì´ì…˜ì´ ë°œìƒì‹œí‚¤ëŠ” ë°ì´í„°ëŠ” ë°°ì¹˜ì‘ì—…ì„ êµ¬ì„±í•´ì„œ ê³ ì„±ëŠ¥ í†µì‹  ì¶”êµ¬
+            // 4. ¸Ş½ÃÁö Àü¼Û ´ë±â => ¸Ş½ÃÁö¸¦ Àü¼Û ´ÜÀ§ ¹èÄ¡·Î ¹Ì¸® ±¸¼º
+            producer.send(record); // ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÌ ¹ß»ı½ÃÅ°´Â µ¥ÀÌÅÍ´Â ¹èÄ¡ÀÛ¾÷À» ±¸¼ºÇØ¼­ °í¼º´É Åë½Å Ãß±¸
+            // Partitioner ¾îµğ¿¡ ¸î°³¾¿ ¸Ş½ÃÁö¸¦ º¸³¾Áö °áÁ¤ -> ¹èÄ¡ ÀÛ¾÷ ÁØºñ
             logger.info("[Record Ready] {}", record);
         }
-        // 5. Record ë°°ì¹˜ë¥¼ Brokerë¡œ ì „ì†¡
+        // 5. Record ¹èÄ¡¸¦ Broker·Î Àü¼Û
         producer.flush();
         producer.close();
     }
